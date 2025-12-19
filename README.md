@@ -1,6 +1,6 @@
 # STLDM: Spatio-Temporal Latent Diffusion Model for Precipitation Nowcasting
 
-This is the official code implementation of the paper **STLDM: Spatio-Temporal Latent Diffusion Model for Precipitation Nowcasting** submitted to TMLR.
+This is the official code implementation of the paper [**STLDM: Spatio-Temporal Latent Diffusion Model for Precipitation Nowcasting**](https://openreview.net/forum?id=f4oJwXn3qg) submitted to TMLR.
 
 ## Setup Environment
 
