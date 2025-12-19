@@ -139,3 +139,17 @@ We would like to thank these developers and credit their code.
 - [OpenSTL](https://github.com/chengtan9907/OpenSTL/blob/OpenSTL-Lightning/README.md)
 - [DiffCast](https://github.com/DeminYu98/DiffCast)
 - [denoising_diffusion_pytorch](https://github.com/lucidrains/denoising-diffusion-pytorch/tree/main/denoising_diffusion_pytorch)
+
+## Citation
+
+If you find this work helpful, please cite the following:
+
+```bib
+@article{foo2025stldm,
+  author  = {Foo, Shi Quan and Wong, Chi-Ho and Gao, Zhihan and Yeung, Dit-Yan and Wong, Ka-Hing and Wong, Wai-Kin},
+  title   = {STLDM: Spatio-Temporal Latent Diffusion Model for Precipitation Nowcasting},
+  journal = {Transactions on Machine Learning Research},
+  year    = {2025},
+  url     = {https://openreview.net/forum?id=f4oJwXn3qg},
+}
+```
