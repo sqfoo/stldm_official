@@ -129,7 +129,7 @@ Other than the evaluation process, we also provide a demo file, ```demo.ipynb```
 - **Spatial** Visual Enhancement with image size of *128*
 - **SpatioTemporal** Visual Enhancement with image size of *256*
 
-You can download their corresponding modek checkpoints from [this link](https://hkustconnect-my.sharepoint.com/:f:/g/personal/sqfoo_connect_ust_hk/IgATefXlByydRaKlqYnC3hIyAUNk5ftNZBXJz0yKa7d89yE?e=BLk0V3).
+You can download their corresponding modek checkpoints from [this link](https://hkustconnect-my.sharepoint.com/:f:/g/personal/sqfoo_connect_ust_hk/IgATefXlByydRaKlqYnC3hIyAUNk5ftNZBXJz0yKa7d89yE?e=BLk0V3) ([Alternative link](https://drive.google.com/drive/folders/1bCQBt5JPQ-JzHSy8ruYhj6p32Q5uEECM?usp=sharing)).
 
 ## Credits and Acknowledgment
 
