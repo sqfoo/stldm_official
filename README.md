@@ -131,6 +131,50 @@ Other than the evaluation process, we also provide a demo file, ```demo.ipynb```
 
 You can download their corresponding modek checkpoints from [this link](https://hkustconnect-my.sharepoint.com/:f:/g/personal/sqfoo_connect_ust_hk/IgATefXlByydRaKlqYnC3hIyAUNk5ftNZBXJz0yKa7d89yE?e=BLk0V3) ([Alternative link](https://drive.google.com/drive/folders/1bCQBt5JPQ-JzHSy8ruYhj6p32Q5uEECM?usp=sharing)).
 
+### Alternative Solution without a Local Checkpoint
+
+We've uploaded the model checkpoint for the first configuration to Hugging Face 🤗 and hosted it. This enables you to run **STLDM** without a locally saved checkpoint. The only requirement is a (free) Hugging Face account. Here is the tutorial.
+
+First, install the required Python dependencies.
+
+```bash
+pip install huggingface_hub safetensors
+```
+
+Then, set your environment variable (```HUGGING_FACE_HUB_TOKEN```) to authenticate and call the **STLDM** model hosted on Hugging Face.
+
+``` python3
+from huggingface_hub import login
+
+login(token="Insert YOUR HF Access Code")
+```
+
+To run it, we import the designed ```GaussianDiffusion``` defined in ```stldm/stldm_hf.py```.
+
+```python3
+import torch
+device = 'cuda' if torch.cuda.is_available() else 'cpu'
+
+from stldm.stldm_hf import GaussianDiffusion
+from stldm import STLDM_HKO
+
+HF_Config = {
+  'vp_param': STLDM_HKO['vp_param'],
+  'stldm_param': STLDM_HKO['stldm_param'],
+  **STLDM_HKO['param'],
+}
+
+# Setup the model
+model = GaussianDiffusion(**HF_Config).from_pretrained("sqfoo/STLDM_official").to(device)
+
+# Setup the Classifier Guidance
+from stldm import guidance_scheduler
+guidance = guidance_scheduler(sampling_step=HF_Config['timesteps'], const=1.0)
+model.setup_guidance(guidance)
+```
+
+Now, you have loaded the pre-trained **STLDM** directly from Hugging Face and are ready to do the inference.
+
 ## Credits and Acknowledgment
 
 We would like to thank these developers and credit their code.
