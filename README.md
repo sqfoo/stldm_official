@@ -94,7 +94,7 @@ In particular, there are a few arguments to set:
 
 ## Evaluation and Sampling
 
-### Evaluation 
+### Evaluation
 
 For the evaluation of **STLDM**, we generate ten ensemble predictions of **STLDM** and evaluate them.
 
@@ -121,15 +121,42 @@ Again, other than the arguments specified above, there are still a few parameter
 - ```--e_file```: The format of the ensemble predictions, replace the $e\_id$ by $\{ \}$. Make sure the predictions are labelled, starting from 0.
 - ```--ens_no```: Total number of ensemble predictions, i.e., 10
 
-### Sampling
+### Sampling and Inference
 
-Other than the evaluation process, we also provide a demo file, ```demo.ipynb``` to show you how to set up and call the **STLDM$** to generate samples for your side implementation. In this demo, we include three different configurations:
+In this section, we will show you how to set up and call the **STLDM** to generate samples for your side implementation. Here, we include three different configurations:
 
 - **SpatioTemporal** Visual Enhancement with image size of *128*
 - **Spatial** Visual Enhancement with image size of *128*
 - **SpatioTemporal** Visual Enhancement with image size of *256*
 
 You can download their corresponding modek checkpoints from [this link](https://hkustconnect-my.sharepoint.com/:f:/g/personal/sqfoo_connect_ust_hk/IgATefXlByydRaKlqYnC3hIyAUNk5ftNZBXJz0yKa7d89yE?e=BLk0V3) ([Alternative link](https://drive.google.com/drive/folders/1bCQBt5JPQ-JzHSy8ruYhj6p32Q5uEECM?usp=sharing)).
+
+``` python3
+# Prepare the data
+import torch
+import numpy as np
+
+from data import dutils
+
+datapath = 'data/sample_data.npy'
+data = torch.tensor(np.load(datapath))
+data = dutils.resize(data, 128) # Resize the data to 128 x 128
+x, y = data[:, :5], data[:, 5:]
+
+# Setup STLDM
+from stldm import InferenceHub
+from stldm.config import STLDM_HKO
+
+Forecastor = InferenceHub(
+  model_config=STLDM_HKO, 
+  model_ckpt="Type MODEL ckpt HERE", 
+  cfg_str=1.0, 
+  model_type='3D'
+)
+
+# Generate Predictions
+y_pred = Forecastor(input_x=x, include_mu=False)
+```
 
 ### Alternative Solution without a Local Checkpoint
 
@@ -152,25 +179,14 @@ login(token="Insert YOUR HF Access Code")
 To run it, we import the designed ```GaussianDiffusion``` defined in ```stldm/stldm_hf.py```.
 
 ```python3
-import torch
-device = 'cuda' if torch.cuda.is_available() else 'cpu'
+from stldm import InferenceHub
+from stldm.config import STLDM_HKO
 
-from stldm.stldm_hf import GaussianDiffusion
-from stldm import STLDM_HKO
-
-HF_Config = {
-  'vp_param': STLDM_HKO['vp_param'],
-  'stldm_param': STLDM_HKO['stldm_param'],
-  **STLDM_HKO['param'],
-}
-
-# Setup the model
-model = GaussianDiffusion(**HF_Config).from_pretrained("sqfoo/STLDM_official").to(device)
-
-# Setup the Classifier Guidance
-from stldm import guidance_scheduler
-guidance = guidance_scheduler(sampling_step=HF_Config['timesteps'], const=1.0)
-model.setup_guidance(guidance)
+Forecastor = InferenceHub(
+  model_config=STLDM_HKO, 
+  cfg_str=1.0, 
+  model_type='HF'
+)
 ```
 
 Now, you have loaded the pre-trained **STLDM** directly from Hugging Face and are ready to do the inference.

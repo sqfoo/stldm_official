@@ -8,6 +8,7 @@ import numpy as np
 import torch.nn.functional as F
 
 from stldm import *
+from stldm.config import *
 import utilspp as utpp
 from data.config import SEVIR_13_12, HKO7_5_20, METEONET_5_20
 from data.loader import GET_TestLoader
