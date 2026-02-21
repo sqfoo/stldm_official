@@ -84,9 +84,9 @@ class InferenceHub:
 
         input_x = input_x.to(self.model.device)
         if include_mu:
-            y_pred, mu = self.model(input_x, includ_mu=include_mu)
+            y_pred, mu = self.model(input_x, include_mu=include_mu)
         else:
-            y_pred = self.model(input_x, includ_mu=include_mu)
+            y_pred = self.model(input_x, include_mu=include_mu)
             mu = None
 
         if mu is not None:

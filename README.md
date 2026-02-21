@@ -2,6 +2,20 @@
 
 This is the official code implementation of the paper [**STLDM: Spatio-Temporal Latent Diffusion Model for Precipitation Nowcasting**](https://openreview.net/forum?id=f4oJwXn3qg) submitted to TMLR.
 
+It is glad to share with you all that. Now, **STLDM Demo** is live on [Hugging Face Space](https://huggingface.co/spaces/sqfoo/STLDM). Feel free to take a look and play with it. Here is a set of predictions:
+
+<img src='assets/sample_gif.gif' width=1000>
+
+
+## Overview and Model Architecture
+
+The proposal of **STLDM** is motivated by the reformulation of **Nowcasting** into two sequntial sub-tasks: **Forecasting** and **Enhancement**, with introducing an intermediate prediction.
+
+**STLDM** is composed of three main components: a *Variational AutoEncoder*, $\{\mathcal{E}, \mathcal{D}\}$, a *Conditioning Network* (aka *Translator*), $\Psi_{\theta}$, and a *Latent Denoising Network*, $D_{\theta}$.
+Its details is shown in figure below. Model performance is further improved with the technique of CFG. **STLDM** is trained jointly with both the conditional and unconditional cases from end to end. 
+
+<img src='assets/stldm.png' width=1000>
+
 ## Setup Environment
 
 Create a new conda environment:
