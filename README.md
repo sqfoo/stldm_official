@@ -2,7 +2,9 @@
 
 This is the official code implementation of the paper [**STLDM: Spatio-Temporal Latent Diffusion Model for Precipitation Nowcasting**](https://openreview.net/forum?id=f4oJwXn3qg) submitted to TMLR.
 
-It is glad to share with you all that. Now, **STLDM Demo** is live on [Hugging Face Space](https://huggingface.co/spaces/sqfoo/STLDM). Feel free to take a look and play with it. Here is a set of predictions:
+## 🎉🎉🎉 Updates 🎉🎉🎉
+
+It is glad to share with you all that. Now, **STLDM Demo** is live on [Hugging Face Space](https://huggingface.co/spaces/sqfoo/STLDM). Feel free to take a look and play with it. Here is a set of sample predictions:
 
 <img src='assets/sample_gif.gif' width=1000>
 
@@ -23,6 +25,13 @@ Create a new conda environment:
 ```bash
 conda create -n stldm python=3.9
 conda activate stldm
+```
+
+Clone the STLDM Repo:
+
+```bash
+git clone https://github.com/sqfoo/stldm_official
+cd stldm_official
 ```
 
 Install related packages:
@@ -155,7 +164,7 @@ from data import dutils
 datapath = 'data/sample_data.npy'
 data = torch.tensor(np.load(datapath))
 data = dutils.resize(data, 128) # Resize the data to 128 x 128
-x, y = data[:, :5], data[:, 5:]
+x = data[:, :5]
 
 # Setup STLDM
 from stldm import InferenceHub
