@@ -8,13 +8,16 @@ It is glad to share with you all that. Now, **STLDM Demo** is live on [Hugging F
 
 <img src='assets/sample_gif.gif' width=1000>
 
-
 ## Overview and Model Architecture
 
-The proposal of **STLDM** is motivated by the reformulation of **Nowcasting** into two sequntial sub-tasks: **Forecasting** and **Enhancement**, with introducing an intermediate prediction.
+The proposal of **STLDM** is motivated by the reformulation of **Nowcasting** into two sequntial sub-tasks: **Forecasting** and **Enhancement**, with introducing an intermediate prediction. Its architecture overview is:
+
+```
+Input Radar Frames -> Deterministic Forecasting Network -> Latent Diffusion Refinement -> High-fidelity Precipitation Prediction
+```
 
 **STLDM** is composed of three main components: a *Variational AutoEncoder*, $\{\mathcal{E}, \mathcal{D}\}$, a *Conditioning Network* (aka *Translator*), $\Psi_{\theta}$, and a *Latent Denoising Network*, $D_{\theta}$.
-Its details is shown in figure below. Model performance is further improved with the technique of CFG. **STLDM** is trained jointly with both the conditional and unconditional cases from end to end. 
+Its details is shown in figure below. Model performance is further improved with the technique of CFG. **STLDM** is trained jointly with both the conditional and unconditional cases from end to end. For full details, please refer to the paper.
 
 <img src='assets/stldm.png' width=1000>
 
