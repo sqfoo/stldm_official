@@ -182,7 +182,7 @@ if __name__ == '__main__':
                 y = model_config['pre'](y)
             
             recon_loss, mu_loss, diff_loss, prior_loss = model.compute_loss(x, y)
-            loss = (recon_loss + mu_loss + diff_loss + prior_loss)
+            loss = (recon_loss + mu_loss + diff_loss + prior_loss) / args.micro_batch
             loss.backward()
 
             if total_step% args.micro_batch == 0:
