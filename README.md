@@ -2,11 +2,13 @@
 
 This is the official code implementation of the paper [**STLDM: Spatio-Temporal Latent Diffusion Model for Precipitation Nowcasting**](https://openreview.net/forum?id=f4oJwXn3qg) submitted to TMLR.
 
-## 🎉🎉🎉 Updates 🎉🎉🎉
+## What's New
 
-It is glad to share with you all that. Now, **STLDM Demo** is live on [Hugging Face Space](https://huggingface.co/spaces/sqfoo/STLDM). Feel free to take a look and play with it. Here is a set of sample predictions:
+🚀 **Update**: The **STLDM Demo** is now live on [Hugging Face Space](https://huggingface.co/spaces/sqfoo/STLDM). Feel free to try it out and experiment with the model. Below is a set of sample predictions:
 
 <img src='assets/sample_gif.gif' width=1000>
+
+⚙️ **New Feature**: We now support [**Distributed Data Parallel (DDP)** training](#ddp-training) for **STLDM**.
 
 ## Overview and Model Architecture
 
@@ -117,6 +119,24 @@ In particular, there are a few arguments to set:
 - ```-d``` / ```--dataset``` : The dataset config found in ```data/config.py```. Please set the corresponding ```--seq_len``` (input sequence length) and ```--out_len``` (output sequence length) as well.
 - ```-m``` / ```--model``` : The STLDM config found in ```stldm/__init__.py```
 - ```--type```: is to specify whether is ```"3D"``` (**Spatiotemporal**) or ```"2S"``` (**Spatial**) Visual Enhancement.
+
+### DDP Training
+
+To train **STLDM** with a larger effective batch size, you can use the distributed training script ```ddp_train.py``` with the following command:
+
+```bash
+CUDA_VISIBLE_DEVICES=1,2 python ddp_train.py -d HKO7_5_20 -m STLDM_HKO --type "3D" -b 4
+```
+
+Most arguments in ```ddp_train.py``` are the same as those in ```train.py```, with one different: ```-b``` / ```--local_batch_size```.
+
+Here, ```--local_batch_size``` refers to the batch size processed by each **individual GPU**. Therefore, the toal effective batch size is:
+
+```
+number of GPU x local_batch_size
+```
+
+For example, if training using **2 GPUs** and ```local_batch_size=4```, then STLDM is trained with a total batch size of $8$ at every training step.
 
 ## Evaluation and Sampling
 

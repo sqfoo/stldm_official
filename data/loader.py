@@ -12,7 +12,10 @@ def GET_TrainLoader(meta, param, batch_size, in_len, out_len):
             'seq_len': total_seq_len,
             'raw_seq_len': total_seq_len,
             'end_date': dutils.SEVIR_TRAIN_TEST_SPLIT_DATE,
-            'start_date': None
+            'start_date': None,
+            'num_shard': param.get('num_shard', 1),
+            'rank': param.get('rank', 0),
+            'split_mode': 'floor'
         }
         test_config = {
             'data_types': ['vil'],
@@ -35,7 +38,7 @@ def GET_TrainLoader(meta, param, batch_size, in_len, out_len):
         train_loader, test_loader = dutils.load_meteonet(batch_size=batch_size, val_batch_size=8 if batch_size > 8 else batch_size, train=True, **param)
         return train_loader, test_loader
     else:
-        raise Exception(f'Undefined dataset config name: {dataset_config["dataset"]}')
+        raise Exception(f'Undefined dataset config name: {meta["dataset"]}')
 
 def GET_TestLoader(meta, param, batch_size):
     if meta['dataset'] == 'SEVIR':
@@ -46,4 +49,4 @@ def GET_TestLoader(meta, param, batch_size):
         _, test_iter = dutils.load_meteonet(batch_size=batch_size, val_batch_size=8, train=False, **param)
         return iter(test_iter)
     else:
-        raise Exception(f'Undefined dataset config name: {dataset_config["dataset"]}')
+        raise Exception(f'Undefined dataset config name: {meta["dataset"]}')
