@@ -86,7 +86,11 @@ def ddp_train(rank, world_size, arguments):
     img_size = model_config['vp_param']['shape_in'][-1]
     device = f'cuda:{rank}' if torch.cuda.is_available() else 'cpu'
     model = n2n_setup[arguments.type](model_config).to(device)
-    ddp_model = DDP(model, device_ids=[rank])
+    ddp_model = DDP(
+        model, 
+        device_ids=[rank],
+        find_unused_parameters=True
+    )
 
     # Load Pre-trained Checkpoint
     if arguments.ae_ckpt is not None:
@@ -132,6 +136,7 @@ def ddp_train(rank, world_size, arguments):
     total_step = 0
     best_val_loss = 1e10
     for epoch in range(1, epochs + 1):
+        ddp_model.train()
         if dataset_type.startswith('sevir'):
             train_loader.reset()
         elif dataset_type.startswith('meteo'):
@@ -155,7 +160,7 @@ def ddp_train(rank, world_size, arguments):
             x, y = x.to(rank), y.to(rank)
             if x.shape[-1] != img_size:
                 x, y = resize(x, img_size), resize(y, img_size)
-            recon_loss, mu_loss, diff_loss, prior_loss = model.compute_loss(x, y) # AE_loss, vp_loss, diff_loss
+            recon_loss, mu_loss, diff_loss, prior_loss = ddp_model.module.compute_loss(x, y) # AE_loss, vp_loss, diff_loss
             loss = (recon_loss + mu_loss + diff_loss + prior_loss)
 
             loss.backward()
@@ -215,7 +220,7 @@ def ddp_train(rank, world_size, arguments):
             val_loss = (acc_mu+acc_diff)/2
 
             with torch.no_grad():
-                y_pred, mu = ddp_model(x)
+                y_pred, mu = ddp_model.module(x, include_mu=True)
             out_x, out_y, mu_pred, out_y_pred = x[rand_batch].unsqueeze(0), y[rand_batch].unsqueeze(0), mu[rand_batch].unsqueeze(0), y_pred[rand_batch].unsqueeze(0)
             utpp.torch_visualize({'input': out_x, 'ground truth': out_y, 'mu_pred': mu_pred, 'predicted': out_y_pred}, savedir=os.path.join(save_path, f'temp-{total_step}.png'), vmin=0, vmax=1)
 
@@ -226,6 +231,7 @@ def ddp_train(rank, world_size, arguments):
                     torch.save(ddp_model.module.state_dict(), os.path.join(save_path, f'{model_pathname}_best.pt'))
                     best_val_loss = val_loss
         
+        dist.barrier() # Synchronize
 
     
     if rank == 0:
