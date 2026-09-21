@@ -393,3 +393,70 @@ class TemporalAttention(nn.Module):
         out = self.to_out(out)
         out = rearrange(out, 'b (h w) t c -> b t c h w', h=H, w=W)
         return out
+
+"""
+Input Tensor and Output Tensor should be in the format of (BT, C, H, W) with # dims = 4
+"""
+class Cross_SpatialAttention(nn.Module):
+    def __init__(self, dim, dim_cond, heads=4, dim_head=32):
+        super(Cross_SpatialAttention, self).__init__()
+        self.scale = dim_head ** -0.5
+        self.heads = heads
+        hidden_dim = dim_head*heads # No of Channel for (Q, K, V)
+        self.to_q = nn.Conv2d(dim, hidden_dim, kernel_size=1, padding=0, bias=False)
+        self.to_k = nn.Conv2d(dim_cond, hidden_dim, kernel_size=1, padding=0, bias=False)
+        self.to_v = nn.Conv2d(dim_cond, hidden_dim, kernel_size=1, padding=0, bias=False)
+
+        self.to_qkv = nn.Conv2d(dim, hidden_dim*3, kernel_size=1, padding=0, bias=False)
+        self.to_out = nn.Sequential(
+            nn.Conv2d(hidden_dim, dim, kernel_size=1)
+        )
+
+    def forward(self, x, x_cond):
+        assert x.ndim == 4 and x_cond.ndim == 4
+        BT, C, H, W = x.shape
+
+        q, k, v = self.to_q(x), self.to_k(x_cond), self.to_v(x_cond)
+        q = q*self.scale
+
+        sim = torch.einsum('b h d i, b h d j -> b h i j', q, k)
+        attn = sim.softmax(dim = -1)
+        out = torch.einsum('b h i j, b h d j -> b h i d', attn, v)
+
+        out = rearrange(out, 'b h (x y) d -> b (h d) x y', x = H, y = W)
+
+        out = self.to_out(out)
+        return out
+
+"""
+Input Tensor and Output Tensor should be in the format of (B, T, C, H, W) with # dims = 5
+"""    
+class Cross_TemporalAttention(nn.Module):
+    def __init__(self, dim, dim_cond, heads=4, dim_head=32):
+        super(Cross_TemporalAttention, self).__init__()
+        self.scale = dim_head ** -0.5
+        self.heads = heads
+        hidden_dim = dim_head*heads
+        self.to_k = nn.Linear(dim_cond, hidden_dim, bias=False)
+        self.to_q = nn.Linear(dim, hidden_dim, bias=False)
+        self.to_v = nn.Linear(dim_cond, hidden_dim, bias=False)
+        self.to_out = nn.Linear(hidden_dim, dim)
+    
+    def forward(self, x, x_cond):
+        assert x.ndim == 5
+        B, T, C, H, W = x.shape
+        x = rearrange(x, 'b t c h w -> b (h w) t c')
+
+        q, k, v = self.to_q(x), self.to_k(x_cond), self.to_v(x_cond)
+        q = rearrange(q, '... n (h d) -> ... h n d', h=self.heads) # B (H W) Head T Dim
+        k = rearrange(k, '... n (h d) -> ... h n d', h=self.heads)
+        v = rearrange(v, '... n (h d) -> ... h n d', h=self.heads)
+        q = q*self.scale
+
+        sim = torch.einsum('... h i d, ... h j d -> ... h i j', q, k)
+        attn = sim.softmax(dim=-1)
+        out = torch.einsum('... h i j, ... h j d -> ... h i d', attn, v)
+        out = rearrange(out, '... h i d -> ... i (h d)', h=self.heads)
+        out = self.to_out(out)
+        out = rearrange(out, 'b (h w) t c -> b t c h w', h=H, w=W)
+        return out

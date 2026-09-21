@@ -65,7 +65,7 @@ if __name__ == '__main__':
     model_type =  model_config['model']
     save_path = utpp.build_model_path(args.output, dataset_type, model_type, timestamp=True) + args.remarks
     os.makedirs(save_path, exist_ok=True)
-    img_size = model_config['vp_param']['shape_in'][-1]
+    img_size = model_config['vp_param']['shape_in'][-2:] # Updated HERE
     # prepare dataloader
     total_seq_len = args.seq_len + args.out_len
     
@@ -175,7 +175,8 @@ if __name__ == '__main__':
                 x, y = utpp.hko7_preprocess(x_seq, x_mask, dt_clip, args)
 
             x, y = x.to(device), y.to(device)
-            if x.shape[-1] != img_size:
+
+            if x.shape[-2:] != torch.Size(img_size):
                 x, y = resize(x, img_size), resize(y, img_size)
             if model_config['pre'] is not None:
                 x = model_config['pre'](x)
@@ -226,7 +227,7 @@ if __name__ == '__main__':
                 x, y = x.to(device), y.to(device)
 
                 with torch.no_grad():
-                    if x.shape[-1] != img_size:
+                    if x.shape[-2:] != torch.Size(img_size):
                         x, y = resize(x, img_size), resize(y, img_size)
                     if model_config['pre'] is not None:
                         x = model_config['pre'](x)

@@ -27,11 +27,32 @@ from PIL import Image
 SEVIR_ROOT_DIR = "data/SEVIR"
 METEO_FILE_DIR = "data/meteonet"
 
+# def resize(seq, size):
+#     # seq shape : (B, T, 1, H, W)
+#     seq = F.interpolate(seq.squeeze(dim=2), size=size, mode='bilinear', align_corners=False) # (B, T, H, W)
+#     seq = seq.clamp(0,1)
+#     return seq.unsqueeze(2) # (B, T, 1, H, W)
+
 def resize(seq, size):
-    # seq shape : (B, T, 1, H, W)
-    seq = F.interpolate(seq.squeeze(dim=2), size=size, mode='bilinear', align_corners=False) # (B, T, H, W)
-    seq = seq.clamp(0,1)
-    return seq.unsqueeze(2) # (B, T, 1, H, W)
+    assert seq.ndim == 5, "Input Tensor has to be in 5 dimension"
+    B, T, C, H, W = seq.shape
+    seq = seq.reshape(B*T, C, H, W)
+
+    if type(size) is int:
+        x, y = size, size
+    elif type(size) is tuple:
+        if len(size) == 1:
+            x, y = size[0], size[0]
+        else:
+            x, y = size[-2], size[-1]
+    else:
+        raise TypeError("Please specify size in the format of integer or Tuple[int]")
+
+    seq = F.interpolate(seq.squeeze(dim=2), size=(x, y), mode='bilinear', align_corners=False) # (BT, C, H, W)
+    seq = seq.clamp(0, 1)    
+    seq = seq.reshape(B, T, C, x, y)
+    return seq
+    
 
 # =====================================================================================
 # HKO-7 data

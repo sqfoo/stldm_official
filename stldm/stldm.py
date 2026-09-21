@@ -164,6 +164,7 @@ class LDM(nn.Module):
                 conds = self.conditions[n](conds)
         
         # out = self.mid(x, t, relative_position)
+
         out = self.mid(x, t)
 
         for up_block in self.ups:
