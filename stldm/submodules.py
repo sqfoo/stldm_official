@@ -407,7 +407,6 @@ class Cross_SpatialAttention(nn.Module):
         self.to_k = nn.Conv2d(dim_cond, hidden_dim, kernel_size=1, padding=0, bias=False)
         self.to_v = nn.Conv2d(dim_cond, hidden_dim, kernel_size=1, padding=0, bias=False)
 
-        self.to_qkv = nn.Conv2d(dim, hidden_dim*3, kernel_size=1, padding=0, bias=False)
         self.to_out = nn.Sequential(
             nn.Conv2d(hidden_dim, dim, kernel_size=1)
         )
@@ -418,6 +417,9 @@ class Cross_SpatialAttention(nn.Module):
 
         q, k, v = self.to_q(x), self.to_k(x_cond), self.to_v(x_cond)
         q = q*self.scale
+        q = rearrange(q, 'b (h c) x y -> b h c (x y)', h=self.heads)
+        k = rearrange(k, 'b (h c) x y -> b h c (x y)', h=self.heads)
+        v = rearrange(v, 'b (h c) x y -> b h c (x y)', h=self.heads)
 
         sim = torch.einsum('b h d i, b h d j -> b h i j', q, k)
         attn = sim.softmax(dim = -1)
@@ -446,6 +448,7 @@ class Cross_TemporalAttention(nn.Module):
         assert x.ndim == 5
         B, T, C, H, W = x.shape
         x = rearrange(x, 'b t c h w -> b (h w) t c')
+        x_cond = rearrange(x_cond, 'b t c h w -> b (h w) t c')
 
         q, k, v = self.to_q(x), self.to_k(x_cond), self.to_v(x_cond)
         q = rearrange(q, '... n (h d) -> ... h n d', h=self.heads) # B (H W) Head T Dim
